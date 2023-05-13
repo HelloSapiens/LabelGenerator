@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html encoding="utf8">
+<head>
+    <title>StickerGenerator</title>
+    <script src="jquery.min.js"></script>
+    <script src="qrcode.min.js"></script>
+    <script src="stickerGenerator.js"></script>
+    <script src="numberConverter.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        .grp {
+            margin: 0;
+            padding: 0;
+            margin-right: 5mm;
+            margin-bottom:1.3mm;
+            border: none;
+            display: inline-block;
+            width: 9.4cm;
+            height: 1.3cm;
+            border: 1px dashed lightgray;
+            padding-top: 1mm;
+        }
+
+        .grp:nth-child(3n) {
+            margin-right: none;
+        }
+
+        .sticker {
+            border: none;
+            width: 33.3%;
+            padding: 0;
+            display: inline-block;
+            margin: 0;
+        }
+
+        .sticker:nth-last-of-type(odd) {
+            border-right: none;
+        }
+
+        .sticker>.codival {
+            margin: 0;
+            padding: 0;
+            font-weight: normal;
+            font-size: 6mm;
+            line-height: 1cm;
+            display: inline-block;
+            text-indent: 1mm;
+        }
+
+        .sticker>.qrco {
+            margin: 1mm;
+            z-index: 2;
+            float: left;
+        }
+        
+        /* danger zone - changing the image size might blur the code
+        .sticker>.qrco>img {
+            height: 8mm;
+        } */
+
+        /* A4 styling */
+        body {
+            zoom: 105%;
+            background-color: silver;
+            box-sizing: border-box;
+            font-family: Verdana, sans-serif;
+            font-size: 11px;
+            margin: 0;
+        }
+
+        .a4 {
+            width: 21cm;
+            height: 29cm;
+            background-color: white;
+            padding-top: 11mm;
+            padding-left: 5mm;
+            padding-right: 7mm;
+            box-sizing: border-box;
+            margin: 0;
+            border-bottom: 1px dashed silver;
+        }
+    </style>
+    <script>
+        //
+        const Pages = 1;
+        const PerPage = 114;
+        const cvt = new NumberConverter();
+        const stickerConfig = {
+            codes_per_grouping: 3, // Set to 0 to disable
+            codes_per_page: PerPage,
+            genesisElementId: 'genesis',
+            getCode: seed => (seed >= Pages * PerPage) ? false : cvt.Convert(seed + 676), // 676 offsets the 1 and 2-character ranges
+        }
+        
+        $(() => { new stickerGenerator(stickerConfig); });
+    </script>
+</head>
+
+<body>
+    <!-- HIDDEN GENESIS STICKER -->
+    <span style="display:none">
+        <div class="sticker" id="genesis">
+            <div class="qrco"></div>
+            <div class="codival"></div>
+        </div>
+    </span>
+    <!-- /HIDDEN GENESIS STICKER -->
+</body>
+</html>
