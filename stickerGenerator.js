@@ -69,7 +69,7 @@ class stickerGenerator {
             clone.id = "clone_" + added;
             element.appendChild(clone);
 
-            var qrcode = new QRCode(barcoId, {
+            new QRCode(barcoId, {
                 text: codigo,
                 width: 32,
                 height: 32,
