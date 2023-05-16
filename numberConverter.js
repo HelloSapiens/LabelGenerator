@@ -25,11 +25,37 @@ class NumberConverter {
         return this.Convert(intX) + this.Convert(intX % 26);
     }
     Unconvert = (strCode) => {
-        // Return the integer (decimal) corresponding to strCode
+        let decimalValue = 0;
+
+        for (let i = 0; i < strCode.length; i++) {
+            const currentChar = strCode.charAt(i);
+
+            if (this.#allowedChars.includes(currentChar)) {
+                const charIndex = this.#allowedChars.indexOf(currentChar);
+                decimalValue = decimalValue * this.#radix + charIndex;
+            } else if (this.#replacementValues.includes(currentChar)) {
+                const replacementIndex = this.#replacementValues.indexOf(currentChar);
+                const digitValue = this.#allowedChars.length + replacementIndex;
+                decimalValue = decimalValue * this.#radix + digitValue;
+            } else {
+                // Invalid character found, return a value indicating error
+                return NaN;
+            }
+        }
+
+        return decimalValue;
     }
-    UnconvertWithChecksum = (strCodeWithCheckum) => {
-        // Return 'false' if code is invalid, otherwise return decimal value of strCodeWithChecksum[..-1]
-        // or return a tuple with (error : true, value = NaN) or (error : false, value = decimal value)
+
+    UnconvertWithChecksum = (strCodeWithChecksum) => {
+        const strCode = strCodeWithChecksum.slice(0, -1); // Removes the last character (checksum)
+        const checksum = strCodeWithChecksum.slice(-1); // Get the last character (checksum)
+
+        if (checksum === this.Convert(strCode % 26)) {
+            const decimalValue = this.Unconvert(strCode);
+            return { error: false, value: decimalValue };
+        } else {
+            return { error: true, value: NaN };
+        }
     }
 }
 
