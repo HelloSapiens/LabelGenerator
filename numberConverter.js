@@ -50,12 +50,11 @@ class NumberConverter {
         const strCode = strCodeWithChecksum.slice(0, -1); // Removes the last character (checksum)
         const checksum = strCodeWithChecksum.slice(-1); // Get the last character (checksum)
 
-        if (checksum === this.Convert(strCode % 26)) {
-            const decimalValue = this.Unconvert(strCode);
-            return { error: false, value: decimalValue };
-        } else {
-            return { error: true, value: NaN };
-        }
+        const error = checksum !== this.convert(strCode % 26);
+        const value = error ? NaN : this.unconvert(strCode);
+        
+        return { error, value };
+        
     }
 }
 
