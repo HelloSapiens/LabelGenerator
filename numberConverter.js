@@ -57,6 +57,3 @@ class NumberConverter {
         
     }
 }
-
-const x = new NumberConverter();
-console.log(x.getblab());
