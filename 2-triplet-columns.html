@@ -44,7 +44,7 @@
             margin: 0;
             padding: 0;
             font-weight: normal;
-            font-size: 6mm;
+            font-size: 4.5mm;
             line-height: 1cm;
             display: inline-block;
             text-indent: 1mm;
@@ -85,14 +85,14 @@
     </style>
     <script>
         //
-        const Pages = 1;
+        const Pages = 3;
         const PerPage = 114;
         const cvt = new NumberConverter();
         const stickerConfig = {
             codes_per_grouping: 3, // Set to 0 to disable
             codes_per_page: PerPage,
             genesisElementId: 'genesis',
-            getCode: seed => (seed >= Pages * PerPage) ? false : cvt.Convert(seed + 676), // 676 offsets the 1 and 2-character ranges
+            getCode: seed => (seed >= Pages * PerPage) ? false : cvt.ConvertWithChecksum(seed + 676), // 676 offsets the 1 and 2-character ranges
         }
         
         $(() => { new stickerGenerator(stickerConfig); });
