@@ -1,12 +1,16 @@
 class stickerGenerator {
     constructor(config) {
+        console.debug(config);
         var genesis = document.getElementById(config.genesisElementId);
         if (!genesis) {
             console.error(`Unable to find element with id (${config?.genesisElementId}) specified in config.genesisElementId`);
             return;
         }
-
-        if (config.codes_per_page % config.codes_per_grouping != 0) {
+        if (config.codes_per_grouping < 1) {
+            config.codes_per_grouping = 1;
+            console.warn(`Invalid value for codes_per_grouping (${config.codes_per_grouping}). Setting it to 1`);
+        }
+        if (config.codes_per_grouping > 0 && config.codes_per_page % config.codes_per_grouping != 0) {
             console.error(`Codes per page (${config.codes_per_page}) must be a divisor of codes per grouping (${config.codes_per_grouping})`);
             return;
         }

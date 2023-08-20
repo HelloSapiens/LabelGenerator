@@ -89,7 +89,7 @@
         const PerPage = 114;
         const cvt = new NumberConverter();
         const stickerConfig = {
-            codes_per_grouping: 3, // Set to 0 to disable
+            codes_per_grouping: 3, // Set to 1 to disable
             codes_per_page: PerPage,
             genesisElementId: 'genesis',
             getCode: seed => (seed >= Pages * PerPage) ? false : cvt.ConvertWithChecksum(seed + 676), // 676 offsets the 1 and 2-character ranges
