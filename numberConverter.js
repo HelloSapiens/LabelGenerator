@@ -22,7 +22,7 @@ class NumberConverter {
         }).join('');
     }
     ConvertWithChecksum = (intX) => {
-        return this.Convert(intX) + this.Convert(intX % 26);
+        return this.Convert(intX) + this.Convert(intX % 23);
     }
     Unconvert = (strCode) => {
         let decimalValue = 0;
