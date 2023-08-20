@@ -6,38 +6,19 @@
     <script src="qrcode.min.js"></script>
     <script src="stickerGenerator.js"></script>
     <script src="numberConverter.js"></script>
+    
     <style>
         * {
             box-sizing: border-box;
         }
 
-        .grp {
-            margin: 0;
-            padding: 0;
-            margin-right: 5mm;
-            margin-bottom:1.3mm;
-            border: none;
-            display: inline-block;
-            width: 9.4cm;
-            height: 1.3cm;
-            border: 1px dashed lightgray;
-            padding-top: 1mm;
-        }
-
-        .grp:nth-child(3n) {
-            margin-right: none;
-        }
-
         .sticker {
-            border: none;
-            width: 33.3%;
-            padding: 0;
+            border: 1px dashed lightgray; /* COMMENT OUT THIS LINE TO REMOVE DASHED BORDERS */
             display: inline-block;
-            margin: 0;
-        }
-
-        .sticker:nth-last-of-type(odd) {
-            border-right: none;
+            width: 9.5cm;
+            height: 6.4cm;
+            padding: 1mm;
+            margin: 2mm 2mm;
         }
 
         .sticker>.codival {
@@ -51,11 +32,32 @@
         }
 
         .sticker>.qrco {
-            margin: 1mm;
+            margin: 6mm 8mm 0;
             z-index: 2;
-            float: left;
+            float: right;
+        }
+
+        .sticker>div {
+            display: inline-block;
+            line-height: 8.5mm;
+            border-bottom: 1px solid black;
+            width: 100%;
+            
         }
         
+        .sticker > div:nth-of-type(-n+3) { /* the first three divs share the space with the QR code */
+            width: 60%;
+        }
+
+        .sticker > div:nth-of-type(4) { /* this is the line with the checkboxes */
+            /* background-color:red; */
+            height:9mm;
+            line-height: 7mm;
+            padding-top:1mm;
+        }
+        .sticker > div:nth-of-type(4) > input {
+            vertical-align: sub;            
+        }
         /* danger zone - changing the image size might blur the code
         .sticker>.qrco>img {
             height: 8mm;
@@ -63,7 +65,7 @@
 
         /* A4 styling */
         body {
-            zoom: 105%;
+            /* zoom: 105%; */
             background-color: silver;
             box-sizing: border-box;
             font-family: Verdana, sans-serif;
@@ -85,17 +87,59 @@
     </style>
     <script>
         //
-        const Pages = 3;
+        function getUsedSeries() {
+            x = localStorage.printedSeries;
+            return (typeof(x) ==='undefined') ? [] : JSON.parse(x);
+        }
+        function available(n) {            
+            if (typeof(getUsedSeries().find(x => x == n))==='undefined') return true;
+            // Function to help make sure the same series is not printed twice (on the same browser)
+            let answer = confirm("Serie sta dja imprimido - selecionar nobu serie?");
+            if (answer == false) {
+                let doubleCheck = window.prompt('Lanta numero di serie mas um bias pa confirma:');
+                if (doubleCheck == n) {
+                    return true;
+                } else {
+                    alert('Bu ka skirbi mesmo numero di serie.')
+                    return false;
+                }
+            } else {
+                return false;
+            }
+            return false;
+        }
+        function getSeriesNumber() {
+            var suggested = 1 + Math.max(...getUsedSeries());
+            let seriesNumber = window.prompt('Numero de serie (1 ... 200). I tene 80 codigos na kada serie.', suggested);
+            return (seriesNumber >= 1 && seriesNumber < 200 && available(seriesNumber)) 
+                ? seriesNumber
+                : getSeriesNumber();
+        }
+        function markUsed(n) {
+            var x = getUsedSeries();
+            x.push(n);
+            localStorage.printedSeries = JSON.stringify(x);
+        }
+        const Pages = 10;
         const PerPage = 8;
         const cvt = new NumberConverter();
         const stickerConfig = {
             codes_per_grouping: 1, // Set to 1 to disable
             codes_per_page: PerPage,
             genesisElementId: 'genesis',
-            getCode: seed => (seed >= Pages * PerPage) ? false : cvt.ConvertWithChecksum(seed + 676), // 676 offsets the 1 and 2-character ranges
+            size: 64,            
         }
         
-        $(() => { new stickerGenerator(stickerConfig); });
+        $(() => { 
+            seriesNumber = getSeriesNumber();
+            if (seriesNumber) {
+                stickerConfig.getCode = seed => (seed >= Pages * PerPage) ? false : cvt.ConvertWithChecksum(seed + 676 + (seriesNumber*80)), // 676 offsets the 1 and 2-character ranges + (offset from the series number*80)
+                new stickerGenerator(stickerConfig);
+                markUsed(seriesNumber);
+            } else {
+                document.body.innerText = `Numero de series não e valido: ${seriesNumber}`
+            }
+        });
     </script>
 </head>
 
@@ -103,8 +147,24 @@
     <!-- HIDDEN GENESIS STICKER -->
     <span style="display:none">
         <div class="sticker" id="genesis">
-            <div class="qrco"></div>
-            <div class="codival"></div>
+            <span class="qrco"></span>
+            
+            <div>No AF:</div><br/>
+            <div>No pessoa:</div><br/>
+            <div>Idade: &nbsp;&nbsp;&nbsp;&nbsp; anos e &nbsp;&nbsp;&nbsp;&nbsp; meses</div><br/>
+
+            <div>
+                <input type="checkbox">FEBRE
+                <input type="checkbox">TDR
+                <input type="checkbox">TPI
+                <input type="checkbox">QPS
+                <input type="checkbox">HB
+            </div><br/>
+            <div style="width:35%">Codigo: <strong class="codival"></strong></div>
+            <div style="width:63%">Data visita: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/ 2023</div><br/>
+            <div style="width:49%">HB:</div>
+            <div style="width:49%">Recusa:</div><br/>
+            <div>Nome/Nome de ref.:</div><br/>
         </div>
     </span>
     <!-- /HIDDEN GENESIS STICKER -->

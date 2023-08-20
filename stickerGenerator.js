@@ -14,6 +14,10 @@ class stickerGenerator {
             console.error(`Codes per page (${config.codes_per_page}) must be a divisor of codes per grouping (${config.codes_per_grouping})`);
             return;
         }
+        if (!config.size) {
+            console.warn("config.size not provided - defaulting to 32");
+            config.size = 32;
+        }
         let added = 0;
         let lastGroup = -1;
         let lastCode = '';
@@ -26,8 +30,8 @@ class stickerGenerator {
                 if (added > MAX_CODES) console.error(`Exceeded arbitrary limit of ${MAX_CODES} codes.`);
                 clearInterval(iv);
                 return;
-            }
-            addStickerToElement(getOrAddGrouping(added, groupNum), codigo, added);
+            }            
+            addStickerToElement(getOrAddGrouping(added, groupNum), codigo, added, config.size);
             added++;
         }, 1);
 
@@ -65,7 +69,7 @@ class stickerGenerator {
             return curPage;
         }
 
-        function addStickerToElement(element, codigo, added) {
+        function addStickerToElement(element, codigo, added, size) {
             let clone = genesis.cloneNode(true);
             clone.getElementsByClassName("codival")[0].innerHTML = codigo;
             const barcoId = "qrc_" + added;
@@ -75,8 +79,8 @@ class stickerGenerator {
 
             new QRCode(barcoId, {
                 text: codigo,
-                width: 32,
-                height: 32,
+                width: size,
+                height: size,
                 colorDark: "#000000",
                 colorLight: "#ffffff",
                 correctLevel: QRCode.CorrectLevel.H

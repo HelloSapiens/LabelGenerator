@@ -10,6 +10,7 @@ class NumberConverter {
     #replacementValues = ['Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
     #radix = this.#allowedChars.length + this.#replacementValues.length;
     #transpose = (intVal) => this.#replacementValues[intVal];
+    #moduloValue = 23;
     constructor() {
         console.debug(`Initialized base ${this.#radix} number converter.`);
     }
@@ -22,7 +23,7 @@ class NumberConverter {
         }).join('');
     }
     ConvertWithChecksum = (intX) => {
-        return this.Convert(intX) + this.Convert(intX % 23);
+        return this.Convert(intX) + this.Convert(intX % this.#moduloValue);
     }
     Unconvert = (strCode) => {
         let decimalValue = 0;
@@ -49,11 +50,8 @@ class NumberConverter {
     UnconvertWithChecksum = (strCodeWithChecksum) => {
         const strCode = strCodeWithChecksum.slice(0, -1); // Removes the last character (checksum)
         const checksum = strCodeWithChecksum.slice(-1); // Get the last character (checksum)
-
-        const error = checksum !== this.convert(strCode % 26);
-        const value = error ? NaN : this.unconvert(strCode);
-        
-        return { error, value };
-        
+        const error = checksum !== this.Convert(this.Unconvert(strCode) % this.#moduloValue);
+        const value = error ? NaN : this.Unconvert(strCode);        
+        return { error, value };        
     }
 }
