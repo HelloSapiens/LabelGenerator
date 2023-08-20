@@ -18,6 +18,9 @@ class stickerGenerator {
             console.warn("config.size not provided - defaulting to 32");
             config.size = 32;
         }
+        if (!config.prefix) {            
+            config.prefix = '';
+        }
         let added = 0;
         let lastGroup = -1;
         let lastCode = '';
@@ -38,12 +41,12 @@ class stickerGenerator {
         function getOrAddGrouping(added, groupNum) {
             const curPage = getOrAddA4Page(added);
             if (config.codes_per_grouping === 0) return curPage;
-            const groupId = "grp_" + groupNum;
+            const groupId = `${config.prefix}grp_${groupNum}`;
             var groupEl = document.getElementById(groupId);
             if (!groupEl) {
-                console.debug(`Adding a new group (class: grp) with id: ${groupId}. Added == ${added}`);
+                console.debug(`Adding a new group with id: ${groupId}. Added == ${added}`);
                 groupEl = document.createElement("span");
-                groupEl.classList.add("grp");
+                groupEl.classList.add(`${config.prefix}grp`);
                 groupEl.id = groupId;
                 curPage.appendChild(groupEl);
             }
@@ -51,7 +54,7 @@ class stickerGenerator {
         }
 
         function getOrAddA4Page(added) {
-            const pid = "page_" + Math.floor(added / config.codes_per_page);
+            const pid = `${config.prefix}page_${Math.floor(added / config.codes_per_page)}`;
             var curPage = document.getElementById(pid);
             if (!curPage) {
                 console.debug("Adding a new A4 (class: a4) page with id:", pid);
@@ -71,9 +74,9 @@ class stickerGenerator {
 
         function addStickerToElement(element, codigo, added, size) {
             let clone = genesis.cloneNode(true);
-            clone.getElementsByClassName("codival")[0].innerHTML = codigo;
-            const barcoId = "qrc_" + added;
-            clone.getElementsByClassName("qrco")[0].id = barcoId;
+            clone.getElementsByClassName(`${config.prefix}codival`)[0].innerHTML = codigo;
+            const barcoId = `${config.prefix}qrc_${added}`;
+            clone.getElementsByClassName(`${config.prefix}qrco`)[0].id = barcoId;
             clone.id = "clone_" + added;
             element.appendChild(clone);
 

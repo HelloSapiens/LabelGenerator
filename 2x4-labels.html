@@ -12,6 +12,9 @@
             box-sizing: border-box;
         }
 
+        .grp {
+            display: inline-block;
+        }
         .sticker {
             border: 1px dashed lightgray; /* COMMENT OUT THIS LINE TO REMOVE DASHED BORDERS */
             display: inline-block;
@@ -84,6 +87,41 @@
             margin: 0;
             border-bottom: 1px dashed silver;
         }
+
+
+        /* stuff related to the small codes on the last page */
+        .s_grp {
+            margin: 0;
+            padding: 0;           
+            border: none;
+            display: inline-block;
+            width: 14%;
+            /* height: 38mm; */
+            border-top: 1px dashed lightgray;
+            border-right: 1px dashed lightgray;
+            padding-top: 1mm;
+        }
+        .s_grp:nth-of-type(7n) {
+            border-right:none;
+        }
+        .s_sticker {
+            margin:1mm 0;
+            padding:0;
+            height: 7.3mm;
+            width:100%;
+            display: inline-block;
+        }
+
+        .s_qrco {
+            float: left;
+            width:49%;
+            padding-left: 5mm;
+        }
+        .s_codival {
+            float: right;
+            width:49%;
+            line-height: 7.3mm;
+        }
     </style>
     <script>
         //
@@ -110,7 +148,7 @@
         }
         function getSeriesNumber() {
             var suggested = 1 + Math.max(...getUsedSeries());
-            let seriesNumber = window.prompt('Numero de serie (1 ... 200). I tene 80 codigos na kada serie.', suggested);
+            let seriesNumber = window.prompt('Numero de serie (1 ... 200)', suggested);
             return (seriesNumber >= 1 && seriesNumber < 200 && available(seriesNumber)) 
                 ? seriesNumber
                 : getSeriesNumber();
@@ -122,6 +160,7 @@
         }
         const Pages = 10;
         const PerPage = 8;
+        const TotalCodesToPrint = 189/3; // Pages * PerPage;
         const cvt = new NumberConverter();
         const stickerConfig = {
             codes_per_grouping: 1, // Set to 1 to disable
@@ -130,10 +169,33 @@
             size: 64,            
         }
         
+        const small_stickerConfig = {
+            prefix:'s_',
+            codes_per_grouping: 3,
+            codes_per_page: 27*7, // == 63*3 == 189
+            genesisElementId: 'small_genesis',
+            size: 24,            
+        }
+
+        
         $(() => { 
             seriesNumber = getSeriesNumber();
+            const fnSmallCodeGenerator = seed => {
+                seed = seed / 3; // This function is only called once per group, so seed jumps in steps of groupsize                
+                return (seed >= TotalCodesToPrint) ? false : cvt.ConvertWithChecksum(seed + 676 + (seriesNumber*Pages*PerPage)); // 676 offsets the 1 and 2-character ranges + (offset from the series number*codes per page*pages)
+            }
+            const fnCodeGenerator = seed => {
+                let complete = seed >= TotalCodesToPrint;
+                if (complete) {
+                    console.log("Large stickers completed! Continuing to writing the small codes")
+                    //$(".a4").first().prepend("<span class='grp'><div class='sticker'></div></span>");
+                    new stickerGenerator(small_stickerConfig); // print the smaller codes
+                }
+                return (complete) ? false : cvt.ConvertWithChecksum(seed + 676 + (seriesNumber*Pages*PerPage)); // 676 offsets the 1 and 2-character ranges + (offset from the series number*codes per page*pages)
+            } 
             if (seriesNumber) {
-                stickerConfig.getCode = seed => (seed >= Pages * PerPage) ? false : cvt.ConvertWithChecksum(seed + 676 + (seriesNumber*80)), // 676 offsets the 1 and 2-character ranges + (offset from the series number*80)
+                stickerConfig.getCode = fnCodeGenerator;
+                small_stickerConfig.getCode = fnSmallCodeGenerator;
                 new stickerGenerator(stickerConfig);
                 markUsed(seriesNumber);
             } else {
@@ -165,6 +227,10 @@
             <div style="width:49%">HB:</div>
             <div style="width:49%">Recusa:</div><br/>
             <div>Nome/Nome de ref.:</div><br/>
+        </div>
+        <div class="s_sticker" id="small_genesis">
+            <div class="s_qrco"></div>
+            <div class="s_codival"></div>
         </div>
     </span>
     <!-- /HIDDEN GENESIS STICKER -->
